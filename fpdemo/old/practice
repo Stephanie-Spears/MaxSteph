@@ -1,0 +1,410 @@
+#include "table.h"
+
+int table::retrieveLargestH(node *& n)
+{
+    if(!n)
+    {
+        return -1;
+    }
+
+    if(n->right)
+    {
+        return retrieveLargestH(n->right);
+    }
+
+    else if(!n->right)
+    {
+        return n->data;
+    }
+}
+
+
+int table::retrieveLargest()
+{
+    return retrieveLargestH(root);
+
+}
+
+
+int table::inOrderSuccessorH(node *& n)
+{
+    if(!n)
+    {
+        return -1;
+    }
+
+    if(n->left)
+    {
+        return inOrderSuccessorH(n->left);
+    }
+    else
+    {
+        return n->data;
+    }
+
+}
+
+int table::inOrderSuccessor()
+{
+    return inOrderSuccessorH(root->right);
+}
+
+
+int table::findTreeSumH(node *& n)
+{
+    if(!n)
+    {
+        return 0;
+    }
+
+    int r = n->data;
+    r+= findTreeSumH(n->left);
+    r+= findTreeSumH(n->right);
+    return r;
+}
+
+int table::findTreeSum()
+{
+    return findTreeSumH(root);
+}
+
+
+void table::removeSmallestH(node*& n)
+{
+    if(!n)
+    {
+        return;
+    }
+
+    if(n->left)
+    {
+        removeSmallestH(n->left);
+    }
+    else
+    {
+        node * x = n->right;
+        delete n;
+        n = x;
+    }
+
+}
+
+void table::removeSmallest()
+{
+    removeSmallestH(root);
+}
+
+
+void table::removeLargestH(node *& n)
+{
+    if(!n)
+    {
+        return;
+    }
+
+    if(n->right)
+    {
+        removeLargestH(n->right);
+    }
+
+    else
+    {
+        node * x = n->left;
+        delete n;
+        n = x;
+    }
+
+}
+
+void table::removeLargest()
+{
+    removeLargestH(root);
+}
+
+
+void table::trimLeavesH(node *& n)
+{
+    if(!n)
+    {
+        return;
+    }
+
+    if(n->left || n->right)
+    {
+        if(n->left)
+        {
+            trimLeavesH(n->left);
+        }
+        if(n->right)
+        {
+            trimLeavesH(n->right);
+        }
+    }
+    else
+    {
+        delete n;
+        n = NULL;
+    }
+}
+
+void table::trimLeaves()
+{
+    trimLeavesH(root);
+}
+
+
+
+node * table::returnOnlyChild(node * n)
+{
+    if((!n) || (n->right && n->left))
+    {
+        return NULL;
+    }
+    else if(n->right)
+    {
+        return n->right;
+    }
+    else
+    {
+        return n->left;
+    }
+}
+
+bool table::removeSmallestWithChildH(node *& n)
+{
+    if(!n)
+    {
+        return false;
+    }
+
+    if(n->left)
+    {
+        if(removeSmallestWithChildH(n->left) == true)
+        {
+            return true;
+        }
+    }
+
+    node * x = returnOnlyChild(n);
+    if(x)
+    {
+        delete n;
+        n = x;
+        return true;
+    }
+    if(n->right)
+    {
+        if(removeSmallestWithChildH(n->right) == true)
+        {
+            return true;
+        }
+    }
+}
+
+void table::removeSmallestWithChild()
+{
+    removeSmallestWithChildH(root);
+}
+
+
+void table::removeAllOneChildH(node *& n)
+{
+    if(!n)
+    {
+        return;
+    }
+
+    if(n->left)
+    {
+        removeAllOneChildH(n->left);
+    }
+    
+    if(n->right)
+    {
+        removeAllOneChildH(n->right);
+    }
+
+    node * x = returnOnlyChild(n);
+    if(x)
+    {
+        delete n;
+        n = x;
+    }
+}
+
+void table::removeAllOneChild()
+{
+    removeAllOneChildH(root);
+}
+
+bool table::copyH(const node * src, node *& dest)
+{
+    if(!src)
+    {
+        return false;
+    }
+    if(dest)
+    {
+        delete dest;
+    }
+    
+    dest = new node;
+    dest->data = src->data;
+    copyH(src->left, dest->left);
+    copyH(src->right, dest->right);
+    return true;
+}
+
+bool table::copy(table & to_copy)
+{
+    return copyH(root, to_copy.root);
+}
+
+const node * table::findLargest(const node* n)
+{
+    if(!n)
+    {
+        return NULL;
+    }
+    if(n->right)
+    {
+        return findLargest(n->right);
+    }
+    else if(!n->right)
+    {
+        return n;
+    }
+
+}
+
+bool table::copyAllButLargestH(const node * src, node *& dest, const node * largest)
+{
+    if(!src)
+    {
+        return false;
+    }
+    if(src == largest)
+    {
+        if(src->left)
+        {
+            return copyAllButLargestH(src->left, dest, largest);
+        }
+        else
+        {
+            return true;
+        }
+    }
+    if(dest)
+    {
+        delete dest;
+    }
+
+    dest = new node;
+    dest->data = src->data;
+    return((copyAllButLargestH(src->left, dest->left, largest) || copyAllButLargestH(src->right, dest->right, largest)));
+}
+
+bool table::copyAllButLargest(table& newTable)
+{
+    return copyAllButLargestH(root, newTable.root, findLargest(root));
+}
+
+
+const node * table::findSuccessor(const node * n)
+{
+    if(!n)
+    {
+        return NULL;
+    }
+    if(n->left)
+    {
+        return findSuccessor(n->left);
+    }
+    else
+    {
+        return n;
+    }
+}
+
+void table::copyAllButRootH(const node* src, node *& dest, const node * newRoot)
+{
+    if(!src)
+    {
+        return;
+    }
+    if(src == newRoot)
+    {
+        if(src->right)
+        {
+            copyAllButRootH(src->right, dest, newRoot);
+            return;
+        }
+        else
+        {
+            return;
+        }
+    }
+    if(dest)
+    {
+        delete dest;
+    }
+    dest = new node;
+    dest->data = src->data;
+    copyAllButRootH(src->left, dest->left, newRoot);
+    copyAllButRootH(src->right, dest->right, newRoot);
+}
+
+void table::copyAllButRoot(table& newTable)
+{
+    if(newTable.root)
+    {
+        delete newTable.root;
+    }
+
+    const node * newRoot = findSuccessor(root->right);
+
+    newTable.root = new node;
+    newTable.root->data = newRoot->data;
+
+    copyAllButRootH(root->left, newTable.root->left, newRoot);
+    copyAllButRootH(root->right, newTable.root->right, newRoot);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
